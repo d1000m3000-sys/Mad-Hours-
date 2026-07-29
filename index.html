@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#2196F3" id="theme-color-meta">
+    <meta name="description" content="تطبيق Med Hours - متتبع الأدوية والجرعات">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Med Hours">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="manifest" href="manifest.json">
+    <title>Med Hours - متتبع الأدوية</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- شاشة البداية Splash Screen -->
+    <div id="splashScreen" class="splash-screen">
+        <div class="splash-content">
+            <div class="splash-icon">
+                <svg viewBox="0 0 100 100" width="120" height="120">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="white" stroke-width="3" class="splash-circle"/>
+                    <text x="50" y="55" text-anchor="middle" fill="white" font-size="40" font-weight="bold">💊</text>
+                </svg>
+            </div>
+            <h1 class="splash-title">Med Hours</h1>
+            <p class="splash-subtitle">متتبع الأدوية الذكي</p>
+            <div class="splash-loader"></div>
+        </div>
+    </div>
+
+    <!-- التطبيق الرئيسي -->
+    <div id="app" class="app hidden">
+        <!-- الهيدر -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="app-title">💊 Med Hours</h1>
+                <div class="header-actions">
+                    <button id="themeToggle" class="icon-btn" aria-label="تبديل الوضع الليلي">
+                        <span class="icon">🌙</span>
+                    </button>
+                    <button id="langToggle" class="icon-btn" aria-label="تغيير اللغة">
+                        <span class="icon">🌐</span>
+                    </button>
+                    <button id="settingsBtn" class="icon-btn" aria-label="الإعدادات">
+                        <span class="icon">⚙️</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- المحتوى الرئيسي -->
+        <main class="main-content">
+            <!-- إحصائيات سريعة -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-label">الأدوية النشطة</span>
+                    <span class="stat-value" id="activeMeds">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">جرعات اليوم</span>
+                    <span class="stat-value" id="todayDoses">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">الجرعة القادمة</span>
+                    <span class="stat-value" id="nextDose">--:--</span>
+                </div>
+            </div>
+
+            <!-- قائمة الأدوية -->
+            <div id="medicationsList" class="medications-list">
+                <!-- سيتم إضافة الأدوية هنا ديناميكياً -->
+            </div>
+
+            <!-- زر إضافة دواء -->
+            <button id="addMedicationBtn" class="add-med-btn floating-btn">
+                <span class="btn-icon">➕</span>
+                <span class="btn-text">إضافة دواء جديد</span>
+            </button>
+
+            <!-- سجل الجرعات -->
+            <section class="history-section">
+                <h2 class="section-title">
+                    <span>📋</span> سجل الجرعات
+                </h2>
+                <div id="doseHistory" class="dose-history">
+                    <p class="empty-state">لا توجد جرعات مسجلة</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- أزرار سفلية -->
+        <div class="bottom-actions">
+            <button id="installBtn" class="install-btn hidden">
+                <span>📲</span> تثبيت التطبيق
+            </button>
+            <button id="clearDataBtn" class="clear-btn">
+                <span>🗑️</span> مسح البيانات
+            </button>
+            <button id="aboutBtn" class="about-btn">
+                <span>ℹ️</span> حول التطبيق
+            </button>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة/تعديل دواء -->
+    <div id="medicationModal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="modalTitle">إضافة دواء جديد</h2>
+            <form id="medicationForm">
+                <div class="form-group">
+                    <label for="medName">اسم الدواء</label>
+                    <input type="text" id="medName" required placeholder="أدخل اسم الدواء">
+                </div>
+                <div class="form-group">
+                    <label for="doseInterval">تكرار الجرعة (ساعات)</label>
+                    <input type="number" id="doseInterval" required min="1" max="72" value="8" placeholder="مثال: 8">
+                </div>
+                <div class="form-group">
+                    <label for="lastDose">آخر جرعة</label>
+                    <input type="datetime-local" id="lastDose" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">💾 حفظ</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal()">❌ إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة التأكيد -->
+    <div id="confirmModal" class="modal hidden">
+        <div class="modal-content confirm-content">
+            <p id="confirmMessage">هل أنت متأكد؟</p>
+            <div class="form-actions">
+                <button id="confirmYes" class="btn-danger">✅ نعم</button>
+                <button id="confirmNo" class="btn-secondary">❌ لا</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة حول التطبيق -->
+    <div id="aboutModal" class="modal hidden">
+        <div class="modal-content about-content">
+            <h2>ℹ️ حول التطبيق</h2>
+            <div class="about-info">
+                <div class="about-icon">💊</div>
+                <h3>Med Hours</h3>
+                <p class="about-version">الإصدار: 1.1</p>
+                <p class="about-developer">المطور: اسم المطور</p>
+                <a href="https://github.com/username/Med-Hours" target="_blank" class="about-link">
+                    🔗 GitHub Repository
+                </a>
+                <p class="about-date">آخر تحديث: 29 يوليو 2026</p>
+            </div>
+            <button class="btn-secondary" onclick="closeAboutModal()">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة الإعدادات -->
+    <div id="settingsModal" class="modal hidden">
+        <div class="modal-content settings-content">
+            <h2>⚙️ الإعدادات</h2>
+            <div class="settings-group">
+                <h3>🎨 المظهر</h3>
+                <div class="theme-colors">
+                    <button class="color-option active" data-color="#2196F3" style="background: #2196F3;"></button>
+                    <button class="color-option" data-color="#4CAF50" style="background: #4CAF50;"></button>
+                    <button class="color-option" data-color="#FF9800" style="background: #FF9800;"></button>
+                    <button class="color-option" data-color="#E91E63" style="background: #E91E63;"></button>
+                    <button class="color-option" data-color="#9C27B0" style="background: #9C27B0;"></button>
+                </div>
+            </div>
+            <button class="btn-secondary" onclick="closeSettingsModal()">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- عنصر الصوت للتنبيه -->
+    <audio id="notificationSound" preload="auto">
+        <source src="sounds/notification.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="script.js"></script>
+</body>
+  </html>
